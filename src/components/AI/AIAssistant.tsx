@@ -1,9 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Loader, Sparkles } from 'lucide-react';
-import { aiAPI } from '../../services/api';
+import { useState, useEffect, useRef } from "react";
+import {
+  Send,
+  Bot,
+  User,
+  Loader,
+  Sparkles,
+  Zap,
+  RotateCcw,
+} from "lucide-react";
+import { aiAPI } from "../../services/api";
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
 }
@@ -11,173 +19,199 @@ interface Message {
 export default function AIAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     {
-      role: 'assistant',
-      content: "Hello! I'm your LifeOS AI assistant. I can help you with task prioritization, goal planning, productivity insights, and more. How can I assist you today?",
+      role: "assistant",
+      content:
+        "Hello! I'm your LifeOS AI, powered by Groq. I can help you prioritize tasks, brainstorm goals, or analyze your productivity trends. What's on your mind?",
       timestamp: new Date(),
     },
   ]);
-  const [input, setInput] = useState('');
+
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const handleSend = async () => {
-    if (!input.trim() || loading) return;
+  const handleSend = async (textOverride?: string) => {
+    const messageText = textOverride || input;
+    if (!messageText.trim() || loading) return;
 
     const userMessage: Message = {
-      role: 'user',
-      content: input,
+      role: "user",
+      content: messageText,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
+    setInput("");
     setLoading(true);
 
     try {
-      const response = await aiAPI.chat(input);
+      const response = await aiAPI.chat(messageText);
       const assistantMessage: Message = {
-        role: 'assistant',
+        role: "assistant",
         content: response.message,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error('Failed to get AI response:', error);
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: "I apologize, but I'm having trouble processing your request. Please try again.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "I'm having trouble connecting to my brain (the API). Please check your connection and try again.",
+          timestamp: new Date(),
+        },
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
   const quickPrompts = [
-    'Help me prioritize my tasks for today',
-    'Suggest a productivity improvement plan',
-    'Create a task for tomorrow',
-    'Give me tips for better time management',
+    {
+      label: "Prioritize Today",
+      icon: <Zap size={14} />,
+      text: "Help me prioritize my tasks for today",
+    },
+    {
+      label: "Goal Planning",
+      icon: <Sparkles size={14} />,
+      text: "Suggest a 3-step plan for a new fitness goal",
+    },
+    {
+      label: "Time Tips",
+      icon: <Bot size={14} />,
+      text: "Give me 3 tips for better time management",
+    },
   ];
 
   return (
-    <div className="p-8 h-full flex flex-col">
-      <div className="mb-6">
-        <div className="flex items-center space-x-3 mb-2">
-          <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 rounded-xl">
-            <Sparkles className="w-6 h-6 text-white" />
+    <div className="flex flex-col h-[calc(100vh-8rem)] max-w-5xl mx-auto space-y-4 animate-in fade-in duration-500">
+      {/* Header Info */}
+      <div className="flex items-center justify-between px-2">
+        <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2.5 rounded-2xl shadow-lg shadow-blue-500/20">
+            <Bot size={24} className="text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">AI Assistant</h1>
-            <p className="text-gray-600">Your intelligent productivity companion</p>
+            <h1 className="text-xl font-bold tracking-tight dark:text-white">
+              LifeOS Intelligence
+            </h1>
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                System Online • Groq LPU™
+              </p>
+            </div>
           </div>
         </div>
+        <button
+          onClick={() => setMessages([messages[0]])}
+          className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all"
+          title="Reset Chat"
+        >
+          <RotateCcw size={18} />
+        </button>
       </div>
 
-      <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.map((message, index) => (
+      {/* Main Chat Box */}
+      <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 custom-scrollbar">
+          {messages.map((msg, i) => (
             <div
-              key={index}
-              className={`flex items-start space-x-3 ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
+              key={i}
+              className={`flex items-start gap-3 md:gap-4 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
             >
-              {message.role === 'assistant' && (
-                <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-2 rounded-lg flex-shrink-0">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-              )}
               <div
-                className={`max-w-2xl rounded-xl p-4 ${
-                  message.role === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-800'
-                }`}
+                className={`flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-2xl flex items-center justify-center shadow-sm 
+                ${msg.role === "user" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-400"}`}
               >
-                <p className="whitespace-pre-wrap">{message.content}</p>
-                <p
-                  className={`text-xs mt-2 ${
-                    message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
+                {msg.role === "user" ? <User size={18} /> : <Bot size={18} />}
+              </div>
+
+              <div
+                className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"} max-w-[85%] md:max-w-[75%]`}
+              >
+                <div
+                  className={`p-4 rounded-[24px] text-sm md:text-base leading-relaxed shadow-sm
+                  ${
+                    msg.role === "user"
+                      ? "bg-blue-600 text-white rounded-tr-none"
+                      : "bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-tl-none border border-gray-100 dark:border-gray-700"
                   }`}
                 >
-                  {message.timestamp.toLocaleTimeString()}
-                </p>
-              </div>
-              {message.role === 'user' && (
-                <div className="bg-blue-600 p-2 rounded-lg flex-shrink-0">
-                  <User className="w-5 h-5 text-white" />
+                  <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>
-              )}
+                <span className="text-[10px] font-bold text-gray-400 mt-2 uppercase tracking-tighter">
+                  {msg.timestamp.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
             </div>
           ))}
-
           {loading && (
-            <div className="flex items-start space-x-3">
-              <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-2 rounded-lg">
-                <Bot className="w-5 h-5 text-white" />
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <Loader size={18} className="animate-spin text-blue-500" />
               </div>
-              <div className="bg-gray-100 rounded-xl p-4">
-                <div className="flex items-center space-x-2">
-                  <Loader className="w-4 h-4 animate-spin text-gray-600" />
-                  <span className="text-gray-600">Thinking...</span>
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-3xl rounded-tl-none">
+                <div className="flex gap-1">
+                  <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce"></span>
+                  <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                  <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0.4s]"></span>
                 </div>
               </div>
             </div>
           )}
-
           <div ref={messagesEndRef} />
         </div>
 
-        {messages.length === 1 && (
-          <div className="px-6 py-4 border-t border-gray-100">
-            <p className="text-sm text-gray-600 mb-3">Quick prompts:</p>
-            <div className="grid grid-cols-2 gap-2">
-              {quickPrompts.map((prompt, index) => (
+        {/* Input & Quick Prompts Wrapper */}
+        <div className="p-4 md:p-6 bg-gray-50/50 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-800">
+          {/* Quick Prompts - Only show at start */}
+          {messages.length < 3 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {quickPrompts.map((p, idx) => (
                 <button
-                  key={index}
-                  onClick={() => setInput(prompt)}
-                  className="text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition"
+                  key={idx}
+                  onClick={() => handleSend(p.text)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 border border-gray-200 dark:border-gray-700 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 transition-all active:scale-95"
                 >
-                  {prompt}
+                  {p.icon} {p.label}
                 </button>
               ))}
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="p-6 border-t border-gray-100">
-          <div className="flex items-end space-x-3">
+          <div className="relative group">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask me anything about productivity, tasks, or goals..."
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              rows={3}
+              onKeyDown={(e) =>
+                e.key === "Enter" &&
+                !e.shiftKey &&
+                (e.preventDefault(), handleSend())
+              }
+              placeholder="Ask LifeOS to analyze your productivity..."
+              className="w-full pl-4 pr-14 py-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-white resize-none shadow-inner"
+              rows={2}
             />
             <button
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={!input.trim() || loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="absolute right-3 bottom-3 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all disabled:opacity-30 disabled:grayscale shadow-lg shadow-blue-500/20 active:scale-90"
             >
-              <Send className="w-5 h-5" />
+              <Send size={18} />
             </button>
           </div>
         </div>

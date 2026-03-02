@@ -1,3 +1,86 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 214, 219, 220;
+    --background-end-rgb: 255, 255, 255;
+  }
+
+  /* 1. Global Smooth Transitions */
+  /* This ensures that when you toggle Dark Mode, the background and text 
+     colors fade smoothly rather than snapping instantly. */
+  body {
+    @apply transition-colors duration-300 ease-in-out bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 2. Selection Color */
+  ::selection {
+    @apply bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100;
+  }
+}
+
+@layer components {
+  /* 3. Glassmorphism Utility */
+  /* Perfect for Modals and AI Chat bubbles to give them depth */
+  .glass {
+    @apply bg-white/70 dark:bg-gray-900/70 backdrop-blur-md border border-white/20 dark:border-gray-800/30;
+  }
+
+  /* 4. Custom Card Hover effect */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1;
+  }
+}
+
+@layer utilities {
+  /* 5. Custom "Thin" Scrollbar */
+  /* Standard browser scrollbars are often too thick for modern dashboards. 
+     This utility makes them subtle and matches the dark/light theme. */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-700 rounded-full transition-colors;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-600;
+  }
+
+  /* 6. Fix for Layout Shifts */
+  /* Keeps the scrollbar area "reserved" so the UI doesn't jump 
+     when content becomes long enough to scroll. */
+  .scrollbar-gutter-stable {
+    scrollbar-gutter: stable;
+  }
+
+  /* 7. Hide Scrollbar but keep functionality (for mobile menus) */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* 8. Specific fixes for Input Autofill (Prevents ugly yellow backgrounds) */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: inherit;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+  transition: background-color 5000s ease-in-out 0s;
+}

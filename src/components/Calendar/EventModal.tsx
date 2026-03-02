@@ -1,242 +1,239 @@
-import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-import { eventsAPI } from '../../services/api';
+import { useState, useEffect } from "react";
+import {
+  X,
+  MapPin,
+  AlignLeft,
+  Calendar as CalendarIcon,
+  Clock,
+  Hash,
+} from "lucide-react";
+import { eventsAPI } from "../../services/api";
 
-interface EventModalProps {
-  event: any;
-  defaultDate?: Date | null;
-  onClose: () => void;
-  onSave: () => void;
-}
-
-export default function EventModal({ event, defaultDate, onClose, onSave }: EventModalProps) {
+export default function EventModal({
+  event,
+  defaultDate,
+  onClose,
+  onSave,
+}: any) {
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    startDate: '',
-    startTime: '',
-    endDate: '',
-    endTime: '',
-    location: '',
-    category: 'other',
-    color: '#3b82f6',
+    title: "",
+    description: "",
+    startDate: "",
+    startTime: "",
+    endDate: "",
+    endTime: "",
+    location: "",
+    category: "other",
+    color: "#3b82f6",
   });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (event) {
-      const startDate = new Date(event.startDate);
-      const endDate = new Date(event.endDate);
-
+      const start = new Date(event.startDate);
+      const end = new Date(event.endDate);
       setFormData({
-        title: event.title || '',
-        description: event.description || '',
-        startDate: startDate.toISOString().split('T')[0],
-        startTime: startDate.toTimeString().slice(0, 5),
-        endDate: endDate.toISOString().split('T')[0],
-        endTime: endDate.toTimeString().slice(0, 5),
-        location: event.location || '',
-        category: event.category || 'other',
-        color: event.color || '#3b82f6',
+        title: event.title || "",
+        description: event.description || "",
+        startDate: start.toISOString().split("T")[0],
+        startTime: start.toTimeString().slice(0, 5),
+        endDate: end.toISOString().split("T")[0],
+        endTime: end.toTimeString().slice(0, 5),
+        location: event.location || "",
+        category: event.category || "other",
+        color: event.color || "#3b82f6",
       });
     } else if (defaultDate) {
-      const dateStr = defaultDate.toISOString().split('T')[0];
+      const dateStr = defaultDate.toISOString().split("T")[0];
       setFormData((prev) => ({
         ...prev,
         startDate: dateStr,
         endDate: dateStr,
+        startTime: "09:00",
+        endTime: "10:00",
       }));
     }
   }, [event, defaultDate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      const eventData = {
-        title: formData.title,
-        description: formData.description,
-        startDate: new Date(`${formData.startDate}T${formData.startTime}`).toISOString(),
-        endDate: new Date(`${formData.endDate}T${formData.endTime}`).toISOString(),
-        location: formData.location,
-        category: formData.category,
-        color: formData.color,
+      const payload = {
+        ...formData,
+        startDate: new Date(
+          `${formData.startDate}T${formData.startTime}`,
+        ).toISOString(),
+        endDate: new Date(
+          `${formData.endDate}T${formData.endTime}`,
+        ).toISOString(),
       };
-
-      if (event) {
-        await eventsAPI.update(event._id, eventData);
-      } else {
-        await eventsAPI.create(eventData);
-      }
-
+      event
+        ? await eventsAPI.update(event._id, payload)
+        : await eventsAPI.create(payload);
       onSave();
       onClose();
-    } catch (error) {
-      console.error('Failed to save event:', error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-800">
-            {event ? 'Edit Event' : 'Create New Event'}
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all">
+      <div className="bg-white dark:bg-gray-900 rounded-[32px] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800">
+          <h2 className="text-xl font-bold dark:text-white">
+            {event ? "Modify Event" : "New Schedule"}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition text-gray-400"
           >
-            <X className="w-6 h-6" />
+            <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Event Title
-            </label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter event title"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter event description"
-              rows={3}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Start Date
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 space-y-5 overflow-y-auto custom-scrollbar"
+        >
+          <div className="space-y-4">
+            <div className="relative">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1 block ml-1">
+                Event Title
               </label>
               <input
-                type="date"
-                value={formData.startDate}
-                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                type="text"
                 required
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 dark:text-white font-bold"
+                placeholder="Design Sync / Team Lunch"
               />
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1 block ml-1">
+                  Start
+                </label>
+                <div className="space-y-2">
+                  <input
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) =>
+                      setFormData({ ...formData, startDate: e.target.value })
+                    }
+                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm"
+                  />
+                  <input
+                    type="time"
+                    value={formData.startTime}
+                    onChange={(e) =>
+                      setFormData({ ...formData, startTime: e.target.value })
+                    }
+                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1 block ml-1">
+                  End
+                </label>
+                <div className="space-y-2">
+                  <input
+                    type="date"
+                    value={formData.endDate}
+                    onChange={(e) =>
+                      setFormData({ ...formData, endDate: e.target.value })
+                    }
+                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm"
+                  />
+                  <input
+                    type="time"
+                    value={formData.endTime}
+                    onChange={(e) =>
+                      setFormData({ ...formData, endTime: e.target.value })
+                    }
+                    className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Start Time
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1 block ml-1">
+                Location
               </label>
-              <input
-                type="time"
-                value={formData.startTime}
-                onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
+              <div className="relative">
+                <MapPin
+                  size={16}
+                  className="absolute left-3 top-3.5 text-gray-400"
+                />
+                <input
+                  type="text"
+                  value={formData.location}
+                  onChange={(e) =>
+                    setFormData({ ...formData, location: e.target.value })
+                  }
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl text-sm"
+                  placeholder="Zoom / Meeting Room A"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1 block ml-1">
+                  Category
+                </label>
+                <select
+                  value={formData.category}
+                  onChange={(e) =>
+                    setFormData({ ...formData, category: e.target.value })
+                  }
+                  className="w-full px-3 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl text-sm"
+                >
+                  <option value="meeting">Meeting</option>
+                  <option value="reminder">Reminder</option>
+                  <option value="deadline">Deadline</option>
+                  <option value="personal">Personal</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1 block ml-1">
+                  Theme Color
+                </label>
+                <input
+                  type="color"
+                  value={formData.color}
+                  onChange={(e) =>
+                    setFormData({ ...formData, color: e.target.value })
+                  }
+                  className="w-full h-[44px] p-1 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl cursor-pointer"
+                />
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                End Date
-              </label>
-              <input
-                type="date"
-                value={formData.endDate}
-                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                End Time
-              </label>
-              <input
-                type="time"
-                value={formData.endTime}
-                onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Location
-            </label>
-            <input
-              type="text"
-              value={formData.location}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter event location"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category
-              </label>
-              <select
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="meeting">Meeting</option>
-                <option value="reminder">Reminder</option>
-                <option value="appointment">Appointment</option>
-                <option value="deadline">Deadline</option>
-                <option value="personal">Personal</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Color
-              </label>
-              <input
-                type="color"
-                value={formData.color}
-                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                className="w-full h-12 px-2 border border-gray-300 rounded-lg cursor-pointer"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-end space-x-4 pt-4">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+              className="px-6 py-2.5 font-bold text-gray-400 hover:text-gray-600 transition"
             >
-              Cancel
+              Discard
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition disabled:opacity-50"
+              className="px-8 py-2.5 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
             >
-              {loading ? 'Saving...' : event ? 'Update Event' : 'Create Event'}
+              {loading ? "Saving..." : "Confirm Event"}
             </button>
           </div>
         </form>
