@@ -4,13 +4,16 @@ import {
   Target,
   Calendar,
   TrendingUp,
-  Clock,
   AlertCircle,
   ArrowRight,
 } from "lucide-react";
 import { tasksAPI, goalsAPI, eventsAPI } from "../../services/api";
 
-export default function Dashboard() {
+interface DashboardProps {
+  setCurrentPage: (page: string) => void;
+}
+
+export default function Dashboard({ setCurrentPage }: DashboardProps) {
   const [stats, setStats] = useState({
     totalTasks: 0,
     completedTasks: 0,
@@ -137,7 +140,10 @@ export default function Dashboard() {
         <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold">Recent Tasks</h2>
-            <button className="text-sm text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage("tasks")}
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+            >
               View all <ArrowRight size={14} />
             </button>
           </div>
@@ -160,11 +166,9 @@ export default function Dashboard() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="hidden sm:block text-[10px] font-bold uppercase px-2 py-1 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-                      {task.priority}
-                    </span>
-                  </div>
+                  <span className="hidden sm:block text-[10px] font-bold uppercase px-2 py-1 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+                    {task.priority}
+                  </span>
                 </div>
               ))
             ) : (
@@ -175,7 +179,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Vertical Quick Stats Container */}
         <div className="space-y-6">
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6">
             <h2 className="text-lg font-bold mb-6">Productivity</h2>
@@ -201,14 +204,20 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* AI Teaser Card */}
           <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-500/20">
             <Bot size={28} className="mb-4" />
             <h3 className="font-bold text-lg mb-1">AI Assistant</h3>
             <p className="text-blue-100 text-sm mb-4">
-              Ask Groq to prioritize your workload based on your goals.
+              Analyze your current workload and get priority suggestions.
             </p>
-            <button className="w-full py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-lg text-sm font-semibold transition-colors">
+
+            <button
+              onClick={() => {
+                localStorage.setItem("ai_action", "run_audit");
+                setCurrentPage("ai");
+              }}
+              className="w-full py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-lg text-sm font-semibold transition-colors"
+            >
               Get Insights
             </button>
           </div>

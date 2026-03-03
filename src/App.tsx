@@ -70,13 +70,13 @@ function MainApp() {
 
   const renderPage = () => {
     const pages: Record<string, JSX.Element> = {
-      dashboard: <Dashboard />,
+      dashboard: <Dashboard setCurrentPage={setCurrentPage} />,
       tasks: <Tasks />,
       goals: <Goals />,
       calendar: <CalendarView />,
       ai: <AIAssistant />,
     };
-    return pages[currentPage] || <Dashboard />;
+    return pages[currentPage] || <Dashboard setCurrentPage={setCurrentPage} />;
   };
 
   return (
