@@ -8,7 +8,6 @@ import {
   Zap,
   RotateCcw,
 } from "lucide-react";
-
 import { aiAPI, tasksAPI, goalsAPI } from "../../services/api";
 
 interface Message {
@@ -30,40 +29,45 @@ export default function AIAssistant() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const runAudit = async () => {
-      const action = localStorage.getItem("ai_action");
-      if (action === "run_audit") {
-        localStorage.removeItem("ai_action");
-        setLoading(true);
-        try {
-          const [tasks, goals] = await Promise.all([
-            tasksAPI.getAll(),
-            goalsAPI.getAll(),
-          ]);
-          const insights = await aiAPI.getInsights(tasks, goals);
+  const runAudit = async () => {
+    const action = localStorage.getItem("ai_action");
+    if (action === "run_audit") {
+      localStorage.removeItem("ai_action");
+      setLoading(true);
+      try {
+        const [tasks, goals] = await Promise.all([
+          tasksAPI.getAll(),
+          goalsAPI.getAll(),
+        ]);
 
-          setMessages((prev) => [
-            ...prev,
-            {
-              role: "assistant",
-              content:
-                "📊 **Productivity Audit Ready**\n\n" +
-                insights
-                  .map((i: any) => `• **${i.title}**: ${i.description}`)
-                  .join("\n\n"),
-              timestamp: new Date(),
-            },
-          ]);
-        } catch (err) {
-          console.error(err);
-        } finally {
-          setLoading(false);
-        }
+        const insights = await aiAPI.getInsights(tasks, goals);
+
+        // 🚀 THE FIX: Check if insights is a valid array
+        const isArray = Array.isArray(insights);
+
+        const contentText = isArray
+          ? insights
+              .map((i: any) => `• **${i.title}**: ${i.description}`)
+              .join("\n\n")
+          : typeof insights === "string"
+            ? insights
+            : "I couldn't generate specific insights at this time.";
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: `📊 **Productivity Audit Ready**\n\n${contentText}`,
+            timestamp: new Date(),
+          },
+        ]);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-    };
-    runAudit();
-  }, []);
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
