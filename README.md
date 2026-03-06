@@ -1,233 +1,216 @@
-# LifeOS - Personal Productivity Management System
+🚀 LifeOS – AI Powered Personal Productivity System
 
-A comprehensive MERN stack productivity platform with AI-powered assistance for managing tasks, goals, events, and personal analytics.
+LifeOS is a full-stack productivity platform designed to help users manage tasks, goals, events, and personal productivity analytics in one place.
+The application also integrates an AI assistant powered by Groq API to provide intelligent task prioritization and productivity insights.
 
-## Features
+The project demonstrates full-stack development using the MERN ecosystem, modern UI design, secure authentication, and AI integration.
 
-- **Task Management**: Create, organize, and track tasks with priorities, due dates, and tags
-- **Goal Planning**: Set and monitor long-term goals with milestones and progress tracking
-- **Calendar & Events**: Schedule and manage events with a visual calendar interface
-- **AI Assistant**: Powered by Groq API for intelligent task prioritization and productivity insights
-- **Analytics Dashboard**: Visual reports and trends for productivity tracking
-- **User Authentication**: Secure JWT-based authentication system
+🌐 Live Demo
 
-## Tech Stack
+Frontend (Vercel)
+https://life-6hl26xlns-guptasomil0567-7720s-projects.vercel.app/
 
-### Frontend
-- React 18 with TypeScript
-- Vite for fast development and building
-- Tailwind CSS for styling
-- Lucide React for icons
+Backend API (Render)
+https://lifeos-5ndi.onrender.com
 
-### Backend
-- Node.js with Express
-- MongoDB with Mongoose ODM
-- JWT authentication
-- Groq SDK for AI features
+## 📸 Screenshots
 
-## Prerequisites
+### 💻 Desktop View
 
-- Node.js (v18 or higher)
-- MongoDB (local or MongoDB Atlas)
-- Groq API key
+![LifeOS Desktop Dashboard](./screenshots/dashboard_pc.png)
 
-## Installation
+The desktop dashboard provides an overview of tasks, goals, analytics, and upcoming events in a clean and modern interface.
 
-### 1. Clone and Install Dependencies
+---
 
-```bash
-# Install frontend dependencies
+### 📱 Mobile View
+
+| Dashboard                                | Tasks                               | AI Assistant                      |
+| ---------------------------------------- | ----------------------------------- | --------------------------------- |
+| ![](./screenshots/dashboard_mobile.jpeg) | ![](./screenshots/mobile_task.jpeg) | ![](./screenshots/mobile_ai.jpeg) |
+
+✨ Key Features
+📝 Task Management
+
+Create, edit, and delete tasks
+Task priority levels (Low, Medium, High, Urgent)
+Status tracking (Todo, In-Progress, Completed)
+Task filtering and tagging
+Due date management
+
+🎯 Goal Tracking
+
+Create long-term and short-term goals
+Add milestones for each goal
+Track goal progress visually
+Update milestone completion
+
+📅 Calendar & Events
+
+Schedule and manage events
+Monthly calendar interface
+Event categorization
+
+🤖 AI Assistant
+
+Powered by Groq API
+Capabilities include:
+
+Task prioritization suggestions
+Productivity insights
+Goal planning assistance
+Natural language productivity queries
+
+📊 Analytics Dashboard
+
+Task completion statistics
+Active goals overview
+Upcoming events
+Productivity insights
+
+🔐 Secure Authentication
+
+JWT based authentication
+Password hashing with bcrypt
+Protected API route
+User profile management
+
+🛠 Tech Stack
+Frontend
+React 18
+TypeScript
+Vite
+Tailwind CSS
+Lucide React Icons
+Context API
+
+Backend
+Node.js
+Express.js
+MongoDB
+Mongoose
+
+JWT Authentication
+
+Groq AI SDK
+
+Deployment
+
+Frontend → Vercel
+Backend → Render
+Database → MongoDB Atlas
+
+🏗 Project Architecture
+Client (React + Vite)
+│
+│ REST API
+▼
+Backend (Node.js + Express)
+│
+▼
+MongoDB Atlas Database
+│
+▼
+Groq AI API
+📂 Project Structure
+lifeos
+│
+├── src
+│ ├── components
+│ │ ├── AI
+│ │ ├── Auth
+│ │ ├── Calendar
+│ │ ├── Dashboard
+│ │ ├── Goals
+│ │ ├── Layout
+│ │ └── Tasks
+│ │
+│ ├── contexts
+│ ├── services
+│ ├── App.tsx
+│ └── main.tsx
+│
+├── server
+│ ├── config
+│ ├── controllers
+│ ├── middleware
+│ ├── models
+│ ├── routes
+│ └── server.js
+⚙️ Installation
+1️⃣ Clone the Repository
+git clone https://github.com/Somilgupta07/LifeOs.git
+cd lifeos
+2️⃣ Install Dependencies
+
+Frontend
 npm install
 
-# Install backend dependencies
+Backend
 cd server
 npm install
 cd ..
-```
+🔑 Environment Variables
+Create .env in root:
 
-### 2. Environment Setup
-
-Create `.env` file in the project root:
-
-```env
 VITE_API_URL=http://localhost:5000/api
-```
 
-Create `server/.env` file:
+Create server/.env:
 
-```env
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/lifeos
-JWT_SECRET=your_jwt_secret_key_here_change_in_production
-GROQ_API_KEY=your_groq_api_key_here
-NODE_ENV=development
+MONGODB_URI=your_mongodb_connection_string
+
+JWT_SECRET=your_secret_key
+
+GROQ_API_KEY=your_groq_api_key
+
 FRONTEND_URL=http://localhost:5173
-```
+▶️ Running the Project
 
-### 3. MongoDB Setup
+Start backend
 
-**Option A: Local MongoDB**
-- Install MongoDB locally
-- Start MongoDB service: `mongod`
-
-**Option B: MongoDB Atlas**
-- Create a free cluster at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-- Get your connection string and update `MONGODB_URI` in `server/.env`
-
-### 4. Get Groq API Key
-
-1. Sign up at [Groq Console](https://console.groq.com)
-2. Generate an API key
-3. Add it to `server/.env` as `GROQ_API_KEY`
-
-## Running the Application
-
-### Development Mode
-
-**Terminal 1 - Backend:**
-```bash
 cd server
 npm run dev
-```
 
-**Terminal 2 - Frontend:**
-```bash
+Start frontend
+
 npm run dev
-```
 
-The application will be available at:
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:5000/api
+Application will run on:
 
-## Building for Production
+Frontend
+http://localhost:5173
 
-```bash
-# Build frontend
-npm run build
+Backend
+http://localhost:5000/api
 
-# Preview production build
-npm run preview
-```
+🚀 Deployment
+Frontend
 
-## API Endpoints
+Deployed using Vercel
 
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/profile` - Get user profile (protected)
-- `PUT /api/auth/profile` - Update user profile (protected)
+Backend
 
-### Tasks
-- `GET /api/tasks` - Get all tasks (protected)
-- `POST /api/tasks` - Create task (protected)
-- `GET /api/tasks/:id` - Get task by ID (protected)
-- `PUT /api/tasks/:id` - Update task (protected)
-- `DELETE /api/tasks/:id` - Delete task (protected)
-- `GET /api/tasks/stats` - Get task statistics (protected)
+Deployed using Render
 
-### Goals
-- `GET /api/goals` - Get all goals (protected)
-- `POST /api/goals` - Create goal (protected)
-- `GET /api/goals/:id` - Get goal by ID (protected)
-- `PUT /api/goals/:id` - Update goal (protected)
-- `DELETE /api/goals/:id` - Delete goal (protected)
-- `PUT /api/goals/:id/milestones/:milestoneId` - Update milestone (protected)
+Database
 
-### Events
-- `GET /api/events` - Get all events (protected)
-- `POST /api/events` - Create event (protected)
-- `GET /api/events/:id` - Get event by ID (protected)
-- `PUT /api/events/:id` - Update event (protected)
-- `DELETE /api/events/:id` - Delete event (protected)
+Hosted on MongoDB Atlas
 
-### AI Assistant
-- `POST /api/ai/chat` - Chat with AI (protected)
-- `POST /api/ai/insights` - Get productivity insights (protected)
-- `POST /api/ai/parse` - Parse natural language input (protected)
+📈 Future Improvements
 
-## Project Structure
+Drag and drop task management
+Productivity notifications
+Habit tracking
+Mobile application
 
-```
-lifeos/
-├── src/
-│   ├── components/
-│   │   ├── AI/
-│   │   ├── Auth/
-│   │   ├── Calendar/
-│   │   ├── Dashboard/
-│   │   ├── Goals/
-│   │   ├── Layout/
-│   │   └── Tasks/
-│   ├── contexts/
-│   ├── services/
-│   ├── App.tsx
-│   └── main.tsx
-├── server/
-│   ├── config/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   └── server.js
-└── package.json
-```
+👨‍💻 Author
 
-## Features Overview
+Somil Gupta
 
-### Dashboard
-- Quick stats overview
-- Recent tasks
-- Active goals count
-- Upcoming events
+GitHub
+https://github.com/Somilgupta07
 
-### Tasks
-- CRUD operations
-- Priority levels (low, medium, high, urgent)
-- Status tracking (todo, in-progress, completed)
-- Tags and filtering
-- Due dates
+⭐ Support
 
-### Goals
-- Short-term and long-term goals
-- Category organization
-- Milestone tracking
-- Progress visualization
-- Status management
-
-### Calendar
-- Monthly view
-- Event creation and management
-- Color-coded events
-- Category filtering
-
-### AI Assistant
-- Natural language interaction
-- Task prioritization suggestions
-- Productivity insights
-- Goal planning assistance
-
-## Security Features
-
-- Password hashing with bcrypt
-- JWT token authentication
-- Protected API routes
-- CORS configuration
-- Input validation
-
-## Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a pull request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-For issues and questions, please open an issue on the GitHub repository.
+If you found this project helpful, please give it a star ⭐ on GitHub.
